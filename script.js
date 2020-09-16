@@ -1,4 +1,5 @@
-
+import openSocket from 'socket-io';
+const  socket = openSocket('http://localhost:4000');
 
 
 const msgInput = document.getElementById('messageInput');
@@ -9,7 +10,7 @@ const appendMsg = ( msg)=>{
     msgOutput.innerText=  msg;
     msgContainer.append(msgOutput);
 }
-const socket = io('http://localhost:3000')
+const socket = io('http://localhost:4000')
 const name = prompt('Please enter your name');
 appendMsg('You Joined!');
 socket.emit('new-user',name);

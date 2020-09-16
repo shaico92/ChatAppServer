@@ -1,18 +1,26 @@
-const io = require('socket.io')(3000);
+const PORT =4000;
 
+const io = require('socket.io')(PORT);
+console.log('server up')
 const users = {}
 
 
 io.on('connection', socket=>{
-    console.log('Potential User');
+    
     socket.on('new-user' , name=>{
+        
         users[socket.id] = name;
         socket.broadcast.emit('user-connected',name);
-    })
+        console.log(name)
+    });
     
     socket.on('send-chat-message', message=>{
-        socket.broadcast.emit('chat-message',{message: message , name : users[socket.id]} );
+        console.log(message);
+        
+        //socket.broadcast.emit('chat-message',{message: message , name : users[socket.id]} );
+        socket.emit('chat-message',message );
     })
 
 });
 
+console.log(`Server runninh on port ${PORT}`)
