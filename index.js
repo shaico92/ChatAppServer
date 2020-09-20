@@ -23,11 +23,20 @@ io.sockets.on("connection", (client) => {
         color = e.color;
       }
     });
-    client.broadcast.emit("chat-message", {
-      message: message,
-      name: name,
-      color: color,
-    });
+    if (message.includes("blob:http://localhost:3000")) {
+      client.broadcast.emit("chat-message", {
+        voice: message,
+        name: name,
+        color: color,
+      });
+    } else {
+      client.broadcast.emit("chat-message", {
+        message: message,
+        name: name,
+        color: color,
+      });
+    }
+
     //client.broadcast.emit("chat-message", message);
   });
 });
