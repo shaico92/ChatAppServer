@@ -2,22 +2,33 @@ const PORT = 4000;
 
 const io = require("socket.io")(PORT);
 console.log("server up");
-const users = {};
+const users = [];
 
-io.on("connection", (socket) => {
-  socket.on("new-user", (name) => {
-    users[socket.id] = name;
-    socket.broadcast.emit("user-connected", name);
-    console.log(name);
+io.sockets.on("connection", (client) => {
+  const clientID = client.id;
+  client.on("new-user", (name) => {
+    const color = Math.floor(Math.random() * 16777215).toString(16);
+    users.push({ clientId: clientID, name: name, color: color });
+
+    //users[client.id] = name;
+    client.emit("user-connected", name);
+    client.broadcast.emit("user-connected", name);
   });
-
-  socket.on("send-chat-message", (message) => {
-    socket.broadcast.emit("chat-message", {
-      message: message,
-      name: users[socket.id],
+  client.on("send-chat-message", (message) => {
+    let name = null;
+    let color = null;
+    users.forEach((e) => {
+      if (e.clientId === clientID) {
+        name = e.name;
+        color = e.color;
+      }
     });
-    //socket.broadcast.emit("chat-message", message);
+    client.broadcast.emit("chat-message", {
+      message: message,
+      name: name,
+      color: color,
+    });
+    //client.broadcast.emit("chat-message", message);
   });
 });
-
 console.log(`Server runninh on port ${PORT}`);
