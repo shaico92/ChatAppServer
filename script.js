@@ -1,38 +1,23 @@
-import openSocket from 'socket-io';
-const  socket = openSocket('http://localhost:4000');
-
-
-const msgInput = document.getElementById('messageInput');
-const messageForm = document.getElementById('send-container');
-const msgContainer = document.getElementById('outPutContainer');
-const appendMsg = ( msg)=>{
-    const msgOutput = document.createElement('div');
-    msgOutput.innerText=  msg;
-    msgContainer.append(msgOutput);
-}
-const socket = io('http://localhost:4000')
-const name = prompt('Please enter your name');
-appendMsg('You Joined!');
-socket.emit('new-user',name);
-
-
-
-
-
-socket.on('user-connected', name=>{
-    appendMsg(`${name} connected`);
-    
-})
-socket.on('chat-message', data=>{
-    appendMsg(`${data.name}: ${data.message}`)
-});
-
-messageForm.addEventListener('submit', e=>{
-    e.preventDefault()
-    const message = msgInput.value;
-    socket.emit('send-chat-message',message);
-    msgInput.value= '';
-})
-
-
-
+const play1 = document.getElementById("play");
+const stop1 = document.getElementById("stop");
+const ok = document.getElementById("ok");
+play1.onclick = () => {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+    mediaRecorder = new mediaRecorder(stream);
+    mediaRecorder.start();
+    chuck = [];
+    mediaRecorder.addEventListener("dataavailable", (e) => {
+      chuck.push(e.data);
+    });
+    mediaRecorder.addEventListener("stop", (e) => {
+      blob = new Blob(chuck);
+      audio_url = URL.createObjectURL(blob);
+      audio = new Audio(audio_url);
+      audio.setAttribute("controls", 1);
+      ok.appendChild(audio);
+    });
+  });
+};
+stop.onclick = () => {
+  mediaRecorder.stop();
+};

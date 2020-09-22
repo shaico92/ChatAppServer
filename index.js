@@ -11,7 +11,7 @@ io.sockets.on("connection", (client) => {
     users.push({ clientId: clientID, name: name, color: color });
 
     //users[client.id] = name;
-    client.emit("user-connected", name);
+    //client.emit("user-connected", name);
     client.broadcast.emit("user-connected", name);
   });
   client.on("send-chat-message", (message) => {

@@ -1,29 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <link rel="stylesheet" href="./index.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <link rel="stylesheet" href="./index.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChatApp</title>
-    <script defer src="http://localhost:4000/socket.io/socket.io.js"></script>
-    <script defer src="./script.js"></script>
-</head>
-<body>
-        <div id="chatContainer">
+  </head>
+  <body>
+    <button id="play">play</button>
+    <button id="stop">stop</button>
+    <div id="ok"></div>
+  </body>
 
-            <div id="outPutContainer">
-            
-            </div>
-            
-            <div>
-                <form id="send-container">
-                    <input id="messageInput" placeholder="start typing...." type="text">
-                    <button type="submit" id="send-button">Send</button>
-                </form>    
-            </div>
-
-
-        </div>
-        
-</body>
+  <script defer src="./script.js"></script>
 </html>
