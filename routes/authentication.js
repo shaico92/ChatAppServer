@@ -30,6 +30,9 @@ router.get("/", (req, res) => {
 const checkUserExist = (userEmail) => {
   return User.findOne({ email: userEmail }).exec();
 };
+const checkUserCredMatch = (userEmail, userPass) => {
+  return User.findOne({ email: userEmail, password: userPass }).exec();
+};
 
 //adding user to db
 const addUserToDB = (userName, userPass, userEmail) => {
@@ -55,7 +58,7 @@ router.post("/register", async (req, res) => {
   const result = await checkUserExist(user.email);
 
   if (result !== null || result > 0) {
-    res.send("user exists!!!");
+    res.send("A user with this email address already exists");
   } else {
     addUserToDB(user.name, user.password, user.email);
     res.send("user in");
@@ -68,13 +71,17 @@ router.get("/login", (req, res) => {
 });
 
 //submitting the signin post route
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/chat",
-    failureRedirect: "/dasdasdsad",
-  })
-);
+router.post("/login", async (req, res) => {
+  const user = req.body;
+  const result = await checkUserCredMatch(user.email, user.password);
+  const name = result._doc.username;
+  if ((result !== null) | (result > 0)) {
+    const answer = { answer: true, name: name };
+    res.send(answer);
+  } else {
+    res.send("Wrong email or password");
+  }
+});
 
 //logout route
 router.get("/logout", function (req, res) {

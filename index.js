@@ -41,16 +41,12 @@ app.use(
     saveUninitialized: false,
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
-// responsible for reading the session and encoding the session and decoding it
-passport.use(new LocalStrategy(User.authenticate()));
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// responsible for reading the session and encoding the session and decoding it
 
 app.use(authRoutes);
 app.set("view engine", "jade");
+
 io.sockets.on("connection", (client) => {
   const clientID = client.id;
   client.on("new-user", (name) => {
