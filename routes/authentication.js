@@ -20,11 +20,7 @@ router.use((req, res, next) => {
   }
   next();
 });
-router.get("/", (req, res) => {
-  //res.send('lol')
-  console.log("entering route");
-  res.send(`You are in / route`);
-});
+router.get("/", (req, res) => {});
 
 //checks if user exists
 const checkUserExist = (userEmail) => {
