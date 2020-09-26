@@ -1,7 +1,7 @@
 // const PORT = 4000;
 // const io = require("socket.io")(PORT);
 console.log("server up");
-const users = [];
+
 (bodyParser = require("body-parser")),
   (express = require("express")),
   (mongoose = require("mongoose")),
