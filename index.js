@@ -42,6 +42,7 @@ app.use(
     saveUninitialized: false,
   })
 );
+app.use(express.static('public'));
 // responsible for reading the session and encoding the session and decoding it
 
 app.use(authRoutes);

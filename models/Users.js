@@ -6,6 +6,7 @@ var UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String,
   email: String,
+  image : String,
 });
 
 //This users the passportlocalmongoose libs to implement on the user mode
