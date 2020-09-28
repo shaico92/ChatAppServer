@@ -2,7 +2,17 @@ var express = require("express");
 var router = express.Router();
 var passport = require("passport");
 var User = require("../models/Users");
-const fs = require('fs')
+const path= require('path');
+const multer  = require('multer')
+
+const upload = multer()
+
+const fs = require("fs"); 
+const { promisify } = require("util");
+const pipeline = promisify(require('stream').pipeline)
+
+
+
 router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
 
@@ -48,38 +58,28 @@ const addUserToDB = (userName, userPass, userEmail,userImage) => {
 //============
 
 //regitster post route
-router.post("/register", async (req, res) => {
+router.post("/register",upload.single('file'), async (req, res) => {
   //const username = req.body;
   
   const user = req.body;
-  fs.readFile(user.image,(err,data)=>{
-    if (err) {
-      console.log(err);
-    }else{
-      const newPath = __dirname+"public/uploads/"+user.image;
-    fs.writeFile(newPath,data,(err)=>{
-
-    })
-    }
-    
-  })
-  console.log(user);
+  const file = req.file;
+  if (file.detectedFileExtension!=='.jpg') next(new Error("invalid file type")) ;
+  const fileName = user.name + Math.floor(Math.random*1000 )+ file.detectedFileExtension;
+  const imagePath =`${__dirname}/../public/uploads/${fileName}`
+  await pipeline(file.stream, fs.createWriteStream(`${__dirname}/../public/uploads/${fileName}`))
+  
   const result = await checkUserExist(user.email);
   
 
   if (result !== null || result > 0) {
     res.send("A user with this email address already exists");
   } else {
-    if (user.image) {
-      const image = "uploads/"+user.image;    
-      addUserToDB(user.name, user.password, user.email,image);
-    res.send("user in");
-  }else{
-    addUserToDB(user.name, user.password, user.email,'image');
+  
+      addUserToDB(user.name, user.password, user.email,imagePath);
     res.send("user in");
   }
     
-  }
+  
 });
 
 //Login route

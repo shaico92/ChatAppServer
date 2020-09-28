@@ -2,8 +2,8 @@ var express = require("express");
 var router = express.Router();
 const users = [];
 const PORT = 4000;
-
-const io = require("socket.io")(4000);
+var User = require("../models/Users");
+const io = require("socket.io")(PORT);
 
 let chatRooms = [
   { roomId: 1, roomName: "room_1", roomAdmin: "admin1" },
