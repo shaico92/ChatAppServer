@@ -11,15 +11,7 @@ let chatRooms = [
   { roomId: 3, roomName: "room_3", roomAdmin: "admin3" },
 ];
 
-const getRoomPort = (roomNum) => {
-  let roomPort = null;
-  chatRooms.forEach((room) => {
-    if (room.roomId === roomNum) {
-      roomPort = room.port;
-    }
-  });
-  return roomPort;
-};
+
 
 router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from

@@ -1,7 +1,7 @@
 // const PORT = 4000;
 // const io = require("socket.io")(PORT);
 console.log("server up");
-
+const path= require('path');
 (bodyParser = require("body-parser")),
   (express = require("express")),
   (mongoose = require("mongoose")),
@@ -42,7 +42,7 @@ app.use(
     saveUninitialized: false,
   })
 );
-app.use(express.static('public'));
+app.use('/public', express.static(path.join(__dirname, 'public')))
 // responsible for reading the session and encoding the session and decoding it
 
 app.use(authRoutes);

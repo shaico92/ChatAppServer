@@ -4,14 +4,27 @@ var passport = require("passport");
 var User = require("../models/Users");
 const path= require('path');
 const multer  = require('multer')
-
+var fileUrl = require('file-url');
 const upload = multer()
 
 const fs = require("fs"); 
 const { promisify } = require("util");
 const pipeline = promisify(require('stream').pipeline)
 
+const fileUrlConverter=(str)=> {
+  if (typeof str !== 'string') {
+      throw new Error('Expected a string');
+  }
 
+  let pathName = path.resolve(str).replace(/\\/g, '/');
+
+  // Windows drive letter must be prefixed with a slash
+  if (pathName[0] !== '/') {
+      pathName = '/' + pathName;
+  }
+
+  return encodeURI('file://' + pathName);
+};
 
 router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
@@ -64,9 +77,18 @@ router.post("/register",upload.single('file'), async (req, res) => {
   const user = req.body;
   const file = req.file;
   if (file.detectedFileExtension!=='.jpg') next(new Error("invalid file type")) ;
-  const fileName = user.name + Math.floor(Math.random*1000 )+ file.detectedFileExtension;
-  const imagePath =`${__dirname}/../public/uploads/${fileName}`
-  await pipeline(file.stream, fs.createWriteStream(`${__dirname}/../public/uploads/${fileName}`))
+  const fileName = Date.now()+user.name + file.detectedFileExtension;
+  // fs.mkdir(`${__dirname}/../public/uploads/${user.email}_`, function(err) {
+  //   if (err) {
+  //     console.log(err)
+  //   } else {
+  //     console.log("New directory successfully created.")
+  //   }
+  // })
+  
+  // const urlFile=fileUrlConverter(imagePath);
+  
+  await pipeline(file.stream, fs.createWriteStream(fileName))
   
   const result = await checkUserExist(user.email);
   
@@ -75,7 +97,7 @@ router.post("/register",upload.single('file'), async (req, res) => {
     res.send("A user with this email address already exists");
   } else {
   
-      addUserToDB(user.name, user.password, user.email,imagePath);
+      addUserToDB(user.name, user.password, user.email,fileName);
     res.send("user in");
   }
     
@@ -83,17 +105,17 @@ router.post("/register",upload.single('file'), async (req, res) => {
 });
 
 //Login route
-router.get("/login", (req, res) => {
-  res.render("auth/login");
-});
 
 //submitting the signin post route
 router.post("/login", async (req, res) => {
   const user = req.body;
   const result = await checkUserCredMatch(user.email, user.password);
   const name = result._doc.username;
+  //path for image
+  const imagepath = result._doc.image;
   if ((result !== null) | (result > 0)) {
-    const answer = { answer: true, name: name };
+    //here the image path is in a file:// format what should i do instead?
+    const answer = { answer: true, name: name, image: imagepath};
     res.send(answer);
   } else {
     res.send("Wrong email or password");
