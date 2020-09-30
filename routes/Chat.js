@@ -35,6 +35,7 @@ router.post("/createRoom", async (req, res) => {
   const roomProperties = req.body;
 
   await chatRooms.push(roomProperties);
+  res.send(chatRooms);
 });
 
 router.get("/", async (req, res) => {
