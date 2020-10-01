@@ -9,8 +9,10 @@ const upload = multer();
 
 const fs = require("fs");
 const { promisify } = require("util");
+const { log } = require("console");
+const { session } = require("passport");
 const pipeline = promisify(require("stream").pipeline);
-
+const sessions = [];
 const fileUrlConverter = (str) => {
   if (typeof str !== "string") {
     throw new Error("Expected a string");
@@ -43,7 +45,29 @@ router.use((req, res, next) => {
   }
   next();
 });
-router.get("/", (req, res) => {});
+router.get("/", (req, res) => {
+  if (!req.session.email) {
+    console.log("no session yet");
+  } else if (req.session.email) {
+    console.log("there is session yet");
+  }
+});
+
+const setUserSession = (userEmail, req) => {
+  sess = req.session;
+  sess.email = userEmail;
+  if (sessions.length > 0) {
+    sessions.forEach((element) => {
+      if (element.email === sess.email) {
+      } else {
+        sessions.push(sess);
+      }
+    });
+  } else {
+    console.log("no sessions yet");
+    sessions.push(sess);
+  }
+};
 
 //checks if user exists
 const checkUserExist = (userEmail) => {
@@ -120,7 +144,7 @@ router.post("/login", async (req, res) => {
   const user = req.body;
   const result = await checkUserCredMatch(user.email, user.password);
   const name = result._doc.username;
-  console.log(name);
+  setUserSession(user.email, req);
   //path for image
   const imagepath = result._doc.image;
   if ((result !== null) | (result > 0)) {
