@@ -12,21 +12,7 @@ const { promisify } = require("util");
 const { log } = require("console");
 const { session } = require("passport");
 const pipeline = promisify(require("stream").pipeline);
-const sessions = [];
-const fileUrlConverter = (str) => {
-  if (typeof str !== "string") {
-    throw new Error("Expected a string");
-  }
-
-  let pathName = path.resolve(str).replace(/\\/g, "/");
-
-  // Windows drive letter must be prefixed with a slash
-  if (pathName[0] !== "/") {
-    pathName = "/" + pathName;
-  }
-
-  return encodeURI("file://" + pathName);
-};
+const Session = {};
 
 router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
@@ -46,27 +32,40 @@ router.use((req, res, next) => {
   next();
 });
 router.get("/", (req, res) => {
-  if (!req.session.email) {
-    console.log("no session yet");
-  } else if (req.session.email) {
-    console.log("there is session yet");
+  // if (sessions.length > 0) {
+  //   sessions.forEach((session) => {
+  //     if (session.email === req.session.email) {
+  //       res.send(`${session.email} is logged in`);
+  //     } else {
+  //       res.send(`${session.email} is  not logged in`);
+  //     }
+  //   });
+  // } else {
+  //   res.send(`no user is logged in`);
+  // }
+  if (!Session.id) {
+    res.send("no session yet");
+  } else {
+    res.send(Session.id);
   }
 });
 
 const setUserSession = (userEmail, req) => {
-  sess = req.session;
-  sess.email = userEmail;
-  if (sessions.length > 0) {
-    sessions.forEach((element) => {
-      if (element.email === sess.email) {
-      } else {
-        sessions.push(sess);
-      }
-    });
-  } else {
-    console.log("no sessions yet");
-    sessions.push(sess);
-  }
+  Session.id = req.session.id;
+  Session.email = userEmail;
+  // sess.email = userEmail;
+
+  // if (sessions.length > 0) {
+  //   sessions.forEach((element) => {
+  //     if (element.email === sess.email) {
+  //     } else {
+  //       sessions.push(sess);
+  //     }
+  //   });
+  // } else {
+
+  //   sessions.push(sess);
+  // }
 };
 
 //checks if user exists
@@ -109,18 +108,8 @@ router.post("/register", upload.single("file"), async (req, res) => {
     file.detectedFileExtension !== ".jpg" ||
     file.detectedFileExtension !== ".PNG"
   ) {
-    // next(new Error("invalid file type"));
   }
   const fileName = Date.now() + user.name + file.detectedFileExtension;
-  // fs.mkdir(`${__dirname}/../public/uploads/${user.email}_`, function(err) {
-  //   if (err) {
-  //     console.log(err)
-  //   } else {
-  //     console.log("New directory successfully created.")
-  //   }
-  // })
-
-  // const urlFile=fileUrlConverter(imagePath);
 
   await pipeline(
     file.stream,
@@ -149,7 +138,12 @@ router.post("/login", async (req, res) => {
   const imagepath = result._doc.image;
   if ((result !== null) | (result > 0)) {
     //here the image path is in a file:// format what should i do instead?
-    const answer = { answer: true, name: name, image: imagepath };
+    const answer = {
+      answer: true,
+      name: name,
+      image: imagepath,
+      sessionId: req.session.id,
+    };
     res.send(answer);
   } else {
     res.send("Wrong email or password");
