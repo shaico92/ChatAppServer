@@ -175,7 +175,8 @@ router.post("/login", async (req, res) => {
 
 //logout route
 router.post("/logout",(req, res)=> {
-  
+  console.log('logging out');
+  res.send('delete cookie')
 });
 
 module.exports = router;
