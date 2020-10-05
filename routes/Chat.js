@@ -87,9 +87,10 @@ io.sockets.on("connection", (client) => {
 
     // else {
     client.to(room).broadcast.emit("chat-message", {
-      message: message,
+      message: message.content,
       name: name,
       color: color,
+      image: message.image
     });
     // }
 

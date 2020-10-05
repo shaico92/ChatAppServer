@@ -24,8 +24,7 @@ const {
 const IN_PROD = NODE_ENV ==='production'
 
 //dependencies for passport
-var passport = require("passport");
-var LocalStrategy = require("passport-local");
+
 
 //initialize DB
 mongoose.connect(
