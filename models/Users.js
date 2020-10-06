@@ -1,12 +1,9 @@
-const mongoose = require("mongoose");
-const passportlocalmongoose = require("passport-local-mongoose");
-
 //sets how the obj will be in the DB
 var UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String,
   email: String,
-  image : String,
+  image: String,
 });
 
 //This users the passportlocalmongoose libs to implement on the user mode

@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var passport = require("passport");
+
 var User = require("../models/Users");
 const path = require("path");
 const multer = require("multer");
@@ -10,9 +10,8 @@ const upload = multer();
 const fs = require("fs");
 const { promisify } = require("util");
 const { log } = require("console");
-const { session } = require("passport");
-const pipeline = promisify(require("stream").pipeline);
 
+const pipeline = promisify(require("stream").pipeline);
 
 router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
@@ -32,12 +31,8 @@ router.use((req, res, next) => {
   next();
 });
 router.get("/", (req, res) => {
-  
+  res.send("myFirstCookielooks good");
 
-
-  res.send('myFirstCookielooks good');
-  
-  
   // if (sessions.length > 0) {
   //   sessions.forEach((session) => {
   //     if (session.email === req.session.email) {
@@ -60,7 +55,6 @@ const setUserSession = (userEmail, req) => {
   // Session.id = req.session.id;
   // Session.email = userEmail;
   // sess.email = userEmail;
-
   // if (sessions.length > 0) {
   //   sessions.forEach((element) => {
   //     if (element.email === sess.email) {
@@ -69,7 +63,6 @@ const setUserSession = (userEmail, req) => {
   //     }
   //   });
   // } else {
-
   //   sessions.push(sess);
   // }
 };
@@ -128,8 +121,6 @@ router.post("/register", upload.single("file"), async (req, res) => {
     res.send("A user with this email address already exists");
   } else {
     addUserToDB(user.name, user.password, user.email, fileName);
-    
-
 
     res.send("user in");
   }
@@ -139,22 +130,14 @@ router.post("/register", upload.single("file"), async (req, res) => {
 
 //submitting the signin post route
 router.post("/login", async (req, res) => {
-
-
-
-
   const user = req.body;
-
-
-
 
   const result = await checkUserCredMatch(user.email, user.password);
   const mama = result.id;
   const name = result._doc.username;
   const email = result._doc.email;
   const userID = result.id;
-  
-  
+
   setUserSession(user.email, req);
   //path for image
   const imagepath = result._doc.image;
@@ -164,8 +147,8 @@ router.post("/login", async (req, res) => {
       answer: true,
       name: name,
       image: imagepath,
-  
-      email : email
+
+      email: email,
     };
     res.send(answer);
   } else {
@@ -174,9 +157,9 @@ router.post("/login", async (req, res) => {
 });
 
 //logout route
-router.post("/logout",(req, res)=> {
-  console.log('logging out');
-  res.send('delete cookie')
+router.post("/logout", (req, res) => {
+  console.log("logging out");
+  res.send("delete cookie");
 });
 
 module.exports = router;
