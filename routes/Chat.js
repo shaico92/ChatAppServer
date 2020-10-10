@@ -6,12 +6,33 @@ var User = require("../models/Users");
 const io = require("socket.io")(PORT);
 
 let chatRooms = [
-  { roomId: 1, roomName: "room_1", roomAdmin: "admin1" },
-  { roomId: 2, roomName: "room_2", roomAdmin: "admin2" },
-  { roomId: 3, roomName: "room_3", roomAdmin: "admin3" },
+  { roomId: 1, roomName: "room_1", roomAdmin: "admin1",password: '12343' },
+  { roomId: 2, roomName: "room_2", roomAdmin: "admin2",password: '123445' },
+  { roomId: 3, roomName: "room_3", roomAdmin: "admin3",password: '123436' },
 ];
 
+const checkRoomPassword = (roomID, password) => {
+  let auth = false;
+   chatRooms.forEach(room=>{
+    if (room.roomId===roomID) {
+      if (room.password===password) {
+        auth = true
+      }
+    }
+  })
+  return auth;
+};
 
+const getInfo = (roomID) => {
+  let roomA = null;
+   chatRooms.forEach(room=>{
+    if (room.roomId===roomID) {
+      roomA=room
+    }
+  })
+  return roomA
+  
+};
 
 router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
@@ -43,9 +64,22 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const roomNum = req.params.id;
+ const param=req.params.id;
+  const roomInfo=  getInfo(parseInt(param))
+  
 
-  res.send(true);
+
+});
+
+
+
+router.post("/:id", async (req, res) => {
+  
+   const roomProp =await req.body
+   const result =checkRoomPassword(roomProp.roomID,roomProp.roomPass)
+
+
+  res.send(result);
 });
 
 io.sockets.on("connection", (client) => {
