@@ -6,32 +6,31 @@ var User = require("../models/Users");
 const io = require("socket.io")(PORT);
 
 let chatRooms = [
-  { roomId: 1, roomName: "room_1", roomAdmin: "admin1",password: '12343' },
-  { roomId: 2, roomName: "room_2", roomAdmin: "admin2",password: '123445' },
-  { roomId: 3, roomName: "room_3", roomAdmin: "admin3",password: '123436' },
+  { roomId: 1, roomName: "room_1", roomAdmin: "admin1", password: "12343" },
+  { roomId: 2, roomName: "room_2", roomAdmin: "admin2", password: "123445" },
+  { roomId: 3, roomName: "room_3", roomAdmin: "admin3", password: "123436" },
 ];
 
 const checkRoomPassword = (roomID, password) => {
   let auth = false;
-   chatRooms.forEach(room=>{
-    if (room.roomId===roomID) {
-      if (room.password===password) {
-        auth = true
+  chatRooms.forEach((room) => {
+    if (room.roomId === roomID) {
+      if (room.password === password) {
+        auth = true;
       }
     }
-  })
+  });
   return auth;
 };
 
 const getInfo = (roomID) => {
   let roomA = null;
-   chatRooms.forEach(room=>{
-    if (room.roomId===roomID) {
-      roomA=room
+  chatRooms.forEach((room) => {
+    if (room.roomId === roomID) {
+      roomA = room;
     }
-  })
-  return roomA
-  
+  });
+  return roomA;
 };
 
 router.use((req, res, next) => {
@@ -64,20 +63,13 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
- const param=req.params.id;
-  const roomInfo=  getInfo(parseInt(param))
-  
-
-
+  const param = req.params.id;
+  const roomInfo = getInfo(parseInt(param));
 });
 
-
-
 router.post("/:id", async (req, res) => {
-  
-   const roomProp =await req.body
-   const result =checkRoomPassword(roomProp.roomID,roomProp.roomPass)
-
+  const roomProp = await req.body;
+  const result = checkRoomPassword(roomProp.room, roomProp.password);
 
   res.send(result);
 });
@@ -124,7 +116,7 @@ io.sockets.on("connection", (client) => {
       message: message.content,
       name: name,
       color: color,
-      image: message.image
+      image: message.image,
     });
     // }
 
