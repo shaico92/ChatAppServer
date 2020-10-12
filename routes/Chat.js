@@ -8,7 +8,7 @@ const io = require("socket.io")(PORT);
 let chatRooms = [
   { roomId: 1, roomName: "room_1", roomAdmin: "admin1", password: "12343" },
   { roomId: 2, roomName: "room_2", roomAdmin: "admin2", password: "123445" },
-  { roomId: 3, roomName: "room_3", roomAdmin: "admin3", password: "123436" },
+  { roomId: 3, roomName: "room_3", roomAdmin: "admin3", password: "1234" },
 ];
 
 const checkRoomPassword = (roomID, password) => {
@@ -87,8 +87,6 @@ io.sockets.on("connection", (client) => {
       room: data.room,
     });
 
-    //users[client.id] = name;
-    //client.emit("user-connected", name);
     const content = { room: data.room, name: data.name };
     client.to(content.room).broadcast.emit("user-connected", content);
   });
@@ -103,15 +101,7 @@ io.sockets.on("connection", (client) => {
         room = e.room;
       }
     });
-    // if (message.content.includes("blob:http://localhost:3000")) {
-    //   client.to(1).broadcast.emit("chat-message", {
-    //     voice: message,
-    //     name: name,
-    //     color: color,
-    //   });
-    // }
-
-    // else {
+    
     client.to(room).broadcast.emit("chat-message", {
       message: message.content,
       name: name,
@@ -120,46 +110,12 @@ io.sockets.on("connection", (client) => {
     });
     // }
 
-    //client.broadcast.emit("chat-message", message);
+    
   });
+  client.on('disconnect-user',whoAndWhere=>{
+    client.to(whoAndWhere.room).broadcast.emit("user-disconnected", whoAndWhere.user);
+  })
 });
 
-// io.sockets.on("connection", (client) => {
-//     const clientID = client.id;
-//     client.on("new-user", (name) => {
-//       const color = Math.floor(Math.random() * 16777215).toString(16);
-//       users.push({ clientId: clientID, name: name, color: color });
-
-//       //users[client.id] = name;
-//       //client.emit("user-connected", name);
-//       client.broadcast.emit("user-connected", name);
-//     });
-//     client.on("send-chat-message", (message) => {
-//       let name = null;
-//       let color = null;
-//       users.forEach((e) => {
-//         if (e.clientId === clientID) {
-//           name = e.name;
-//           color = e.color;
-//         }
-//       });
-//       if (message.includes("blob:http://localhost:3000")) {
-//         client.broadcast.emit("chat-message", {
-//           voice: message,
-//           name: name,
-//           color: color,
-//         });
-//       } else {
-//         client.broadcast.emit("chat-message", {
-//           message: message,
-//           name: name,
-//           color: color,
-//         });
-//       }
-
-//       //client.broadcast.emit("chat-message", message);
-//     });
-//   });
-//   console.log(`Chat Server Socket runninh on port ${PORT}`);
 
 module.exports = router;
