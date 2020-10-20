@@ -4,12 +4,24 @@ const users = [];
 const PORT = 4000;
 var User = require("../models/Users");
 const io = require("socket.io")(PORT);
+const ffmpeg = require('ffmpeg')
+
+
 
 let chatRooms = [
   { roomId: 1, roomName: "room_1", roomAdmin: "admin1", password: "12343" },
   { roomId: 2, roomName: "room_2", roomAdmin: "admin2", password: "123445" },
   { roomId: 3, roomName: "room_3", roomAdmin: "admin3", password: "1234" },
 ];
+
+const giveUserColor= ()=>{
+  let color = null
+  color =Math.floor(Math.random() * 16777215).toString(16);
+  if (color!='#FFFFFF') {
+    return color;  
+  }
+  return Math.floor(Math.random() * 16777215).toString(16);;
+}
 
 const checkRoomPassword = (roomID, password) => {
   let auth = false;
@@ -75,47 +87,118 @@ router.post("/:id", async (req, res) => {
 });
 
 io.sockets.on("connection", (client) => {
-  const clientID = client.id;
+  
   client.on("new-user", (data) => {
     client.join(data.room);
 
-    const color = Math.floor(Math.random() * 16777215).toString(16);
-    users.push({
-      clientId: clientID,
-      name: data.name,
-      color: color,
-      room: data.room,
-    });
 
-    const content = { room: data.room, name: data.name };
-    client.to(content.room).broadcast.emit("user-connected", content);
-  });
-  client.on("send-chat-message", (message) => {
-    let name = null;
-    let color = null;
-    let room = null;
-    users.forEach((e) => {
-      if (e.clientId === clientID) {
-        name = e.name;
-        color = e.color;
-        room = e.room;
-      }
-    });
+    const color = giveUserColor();
+    // users.push({
+    //   clientId: client.id,
+    //   name: data.name,
+    //   color: color,
+    //   room: data.room,
+    // });
     
-    client.to(room).broadcast.emit("chat-message", {
-      message: message.content,
-      name: name,
-      color: color,
-      image: message.image,
-    });
+    client.room=data.room;
+    client.name=data.name;
+    client.color=color
+    
+    
+    const content = { room: client.room, name: client.name };
+    client.to(client.room).broadcast.emit("user-connected", content);
+  });
+  client.on('typing-message',(photo)=>{
+    users.forEach((e) => {
+      if (e.clientId === client.id) {
+        const obj = {who:photo}
+        client.to(e.room).broadcast.emit("other-typing",obj)
+      }
+    
+    
+  })})
+
+client.on('send-audio',(audioMessage)=>{
+  let name = null;
+  let color = null;
+  let room = null;
+  users.forEach((e) => {
+    if (e.clientId === client.Id) {
+      name = e.name;
+      color = e.color;
+      room = e.room;
+    }
+  });
+
+
+  
+})
+
+
+  client.on("send-chat-message", (message) => {
+    
+    
+    if (message.content.includes("blob:http://localhost:3000")) {
+
+      const file = new File([message.content], filename, {type: contentType, lastModified: Date.now()});
+
+
+
+      // client.staticFolder= new ffmpeg(`./public/recordings/${client.room}`)
+      // try {
+      //   const process = message.content
+      // process.then((audio)=>{
+      //   audio.fnExtractSoundToMP3(`${client.staticFolder}/file.mp3`,(err,file)=>{
+      //     if (!err) {
+      //       console.log(`Audio file: ${file}`);
+      //     }else{
+      //       console.log(`errror : ${err}`);
+      //     }
+      //   })
+      // })
+      // } catch (error) {
+      //   console.log(e.code);
+      //   console.log(e.msg);
+      // }
+      const voiceBlob=message.content;
+      
+      console.log(voiceBlob);
+      const messageOut = {
+        voice: voiceBlob,
+        name: client.name,
+        color: client.color,
+        image: message.image
+      }
+        client.to(client.room).broadcast.emit("chat-message",messageOut);
+    
+
+    }else{
+      client.to(client.room).broadcast.emit("chat-message", {
+        message: message.content,
+        name: client.name,
+        color: client.color,
+        image: message.image,
+      });
+    }
+    
+  
+  
+  
+  });
+    
     // }
 
     
-  });
+  
   client.on('disconnect-user',whoAndWhere=>{
-    client.to(whoAndWhere.room).broadcast.emit("user-disconnected", whoAndWhere.user);
+    
+    client.to(client.room).broadcast.emit("user-disconnected", whoAndWhere.user);
+    client.room=null;
+    client.name=null;
+    client.color=null
   })
-});
+}
+);
 
 
 module.exports = router;
